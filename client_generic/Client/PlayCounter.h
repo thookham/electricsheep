@@ -6,7 +6,7 @@
 #ifndef _PLAYCOUNTER_H
 #define _PLAYCOUNTER_H
 
-#include	<boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 #include	<boost/scoped_ptr.hpp>
 static const uint32 gl_sMaxGeneration = 100000;
 #define max_sheep 100000
@@ -17,7 +17,7 @@ static const uint32 gl_sMaxGeneration = 100000;
 #define n_dirty_bits (1+(max_sheep>>log_count_size))
 #define play_write_rate 10
 
-using boost::filesystem::path;
+// No using directives for boost::filesystem to avoid conflicts
 
 struct sPlayCountData
 {
@@ -32,7 +32,7 @@ class	CPlayCounter : public Base::CSingleton<CPlayCounter>
     typedef std::map<uint32, sPlayCountData> PlayCountMap;
 
 	PlayCountMap m_PlayCounts;
-	path m_PlayCountFilePath;
+	boost::filesystem::path m_PlayCountFilePath;
 	bool m_ReadOnly;
 
 	size_t	m_DeadEndCutSurvivors;
@@ -54,7 +54,7 @@ class	CPlayCounter : public Base::CSingleton<CPlayCounter>
 		{
 			boost::scoped_ptr<sPlayCountData> pdata(new sPlayCountData);
 			memset(pdata.get(), 0, sizeof(sPlayCountData));
-			path generation_path = m_PlayCountFilePath;
+			boost::filesystem::path generation_path = m_PlayCountFilePath;
 			std::stringstream generationstr;
 			generationstr << "play_counts." << generation;
 			generation_path /= generationstr.str().c_str();
@@ -196,7 +196,7 @@ public:
 		return true;
 	}
 	
-	void SetDirectory( const path& dir )
+	void SetDirectory( const boost::filesystem::path& dir )
 	{
 		m_PlayCountFilePath = dir;
 	}

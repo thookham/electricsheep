@@ -122,6 +122,6 @@ static const luaL_Reg luaxmllib[] = {
 */
 extern int luaopen_xml( lua_State *L )
 {
-	luaL_register( L, "luaXML",  luaxmllib );
+	luaL_newlib( L,  luaxmllib );
 	return 1;
 }

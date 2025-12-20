@@ -7,14 +7,10 @@
 #include	"luastorage.h"
 #include	"clientversion.h"
 
-#include	"boost/filesystem/path.hpp"
-#include	"boost/filesystem/operations.hpp"
-#include	"boost/filesystem/convenience.hpp"
+#include <boost/filesystem.hpp>
 
 using boost::filesystem::path;
 using boost::filesystem::exists;
-using boost::filesystem::directory_iterator;
-using boost::filesystem::extension;
 
 using namespace std;
 
@@ -214,7 +210,7 @@ bool	CStorageLua::Commit()
 		s2 << "g_Settings." << "settings.app.date_time" << " =  [[" << temptime << "]]";
 		m_pState->Execute( s2.str().c_str() );
 
-		path tmpPath = m_sRoot;
+		boost::filesystem::path tmpPath = m_sRoot;
 		tmpPath /= cfgfile;
 		std::string tmp = "table.save( g_Settings, [[" + tmpPath.string() + "]] )";
 		m_pState->Execute( tmp );
@@ -242,7 +238,7 @@ bool	CStorageLua::Initialise( const std::string &_sRoot, const std::string &_sWo
 	g_Log->Info( "CStorageLua::Initialize( %s, %s )\n", _sRoot.c_str(), _sWorkingDir.c_str() );
 
 	m_bReadOnly = _bReadOnly;
-    path tmpPath = _sRoot;
+    boost::filesystem::path tmpPath = _sRoot;
 	m_sRoot = tmpPath.string();
 
 #ifdef	WIN32

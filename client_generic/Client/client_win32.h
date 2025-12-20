@@ -118,7 +118,7 @@ class	CElectricSheep_Win32 : public CElectricSheep
 	}
 
 	public:
-			CElectricSheep_Win32() : CElectricSheep(), g_SingleInstanceObj( "Global\\{"CLIENT_VERSION_PRETTY"}" ), m_bAllowFKey(false), m_pD3D9(NULL)
+			CElectricSheep_Win32() : CElectricSheep(), g_SingleInstanceObj( "Global\\{" CLIENT_VERSION_PRETTY "}" ), m_bAllowFKey(false), m_pD3D9(NULL)
 			{
 				printf( "CElectricSheep_Win32()\n" );
 
@@ -188,7 +188,7 @@ class	CElectricSheep_Win32 : public CElectricSheep
 						while( *c==' ' || *c==':' )
 							c++;
 
-						hwnd = (HWND)atoi(c);
+						hwnd = (HWND)(uintptr_t)_atoi64(c);
 						m_ScrMode = ePreview;
 					}
 					else if( *c=='s' || *c=='S' )
@@ -210,7 +210,7 @@ class	CElectricSheep_Win32 : public CElectricSheep
 						while( *c==' ' || *c==':' )
 							c++;
 
-						hwnd = (HWND)atoi(c);
+						hwnd = (HWND)(uintptr_t)_atoi64(c);
 						m_ScrMode = ePassword;
 					}
 					//	Windowed test mode.
@@ -283,7 +283,7 @@ class	CElectricSheep_Win32 : public CElectricSheep
 				
 				if (InitStorage(m_MultipleInstancesMode) == false)
 				{
-					MessageBox(NULL, L"Unable to initialize scripts. Try reinstalling.", L"Error!", MB_OK | MB_ICONERROR);
+					MessageBoxA(NULL, "Unable to initialize scripts. Try reinstalling.", "Error!", MB_OK | MB_ICONERROR);
 					return false;
 				}
 				

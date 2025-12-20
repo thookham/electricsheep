@@ -668,8 +668,10 @@ bool Shepherd::getSheep( const char *path, SheepArray *sheep )
 	try {
 	boost::filesystem::path p(path);
 
-	directory_iterator end_itr; // default construction yields past-the-end
-	for ( directory_iterator itr( p );
+	if (!exists(p) || !is_directory(p))
+		return false;
+
+	for ( directory_iterator itr( p ), end_itr;
 			itr != end_itr;
 			++itr )
 	{
@@ -682,7 +684,11 @@ bool Shepherd::getSheep( const char *path, SheepArray *sheep )
 
 		if (is_directory(itr->status()))
 		{
-			bool gotSheepSubfolder = getSheep( (char*)(itr->path().string() + std::string("/")).c_str(), sheep );
+			std::string subpath = itr->path().string();
+			if (subpath.back() != PATH_SEPARATOR_C)
+				subpath += PATH_SEPARATOR_C;
+
+			bool gotSheepSubfolder = getSheep( subpath.c_str(), sheep );
 			gotSheep |= gotSheepSubfolder;
 
 			if (!gotSheepSubfolder)
@@ -690,26 +696,21 @@ bool Shepherd::getSheep( const char *path, SheepArray *sheep )
 		}
 		else
 		{
-			std::string fname(itr->path().filename().string());
+			std::string fname = itr->path().filename().string();
 
 			if( Shepherd::filenameIsXxx( fname.c_str() ) )
 			{
-				//	We have found an mpeg so check the filename to see if it is valid than add it
 				if( 4 != sscanf( fname.c_str(), "%d=%d=%d=%d.xxx", &generation, &id, &first, &last ) )
 				{
-					//	This file is from the older format so delete it from the cache.
 					remove(itr->path());
 					continue;
 				}
-
 				isDeleted = true;
 			}
 			else if( Shepherd::filenameIsTmp( fname.c_str() ) )
 			{
-				//	This file is an unfinished downloaded file so mark it for deletion.
 				if( 4 != sscanf( fname.c_str(), "%d=%d=%d=%d.avi.tmp", &generation, &id, &first, &last ) )
 				{
-					//	This file is from the older format so delete it from the cache.
 					remove(itr->path());
 					continue;
 				}
@@ -717,29 +718,25 @@ bool Shepherd::getSheep( const char *path, SheepArray *sheep )
 			}
 			else if( Shepherd::filenameIsMpg( fname.c_str() ) )
 			{
-				//	We have found an mpeg so check the filename to see if it is valid than add it
 				if( 4 != sscanf( fname.c_str(), "%d=%d=%d=%d.avi", &generation, &id, &first, &last ) )
 				{
-					//	This file is from the older format so delete it from the cache.
 					remove(itr->path());
 					continue;
 				}
 				
-				std::string xxxname(fname);
-				xxxname.replace(fname.size() - 3, 3, "xxx");
+				boost::filesystem::path xxxpath = itr->path();
+				xxxpath.replace_extension(".xxx");
 				
-				if ( exists( p/xxxname ) )
+				if ( exists( xxxpath ) )
 				{
 					isDeleted = true;
 				}
 			}
 			else
 			{
-				//	Not a recognizable file skip it.
 				continue;
 			}
 
-			//	Allocate the sheep and set the attributes.
 			Sheep *newSheep = new Sheep();
 			newSheep->setGeneration( generation );
 			newSheep->setId( id );
@@ -748,23 +745,19 @@ bool Shepherd::getSheep( const char *path, SheepArray *sheep )
 			newSheep->setIsTemp( isTemp );
 			newSheep->setDeleted( isDeleted );
 
-			//	Set the filename.
-			snprintf( fbuf, MAXBUF, "%s%s", path,  fname.c_str() );
-			newSheep->setFileName( fbuf );
-			struct stat sbuf;
+			std::string fullPath = itr->path().string();
+			newSheep->setFileName( fullPath.c_str() );
+			
+			newSheep->setFileWriteTime( last_write_time(itr->path()) );
+			newSheep->setFileSize( static_cast<uint64>(file_size(itr->path())) );
 
-			stat( fbuf, &sbuf );
-			newSheep->setFileWriteTime( sbuf.st_ctime );
-			newSheep->setFileSize( static_cast<uint64>(sbuf.st_size) );
-
-			//	Add it to the return array.
 			sheep->push_back( newSheep );
 			gotSheep = true;
 		}
 	}
 
 	}
-	catch(boost::filesystem::filesystem_error& err)
+	catch(const boost::filesystem::filesystem_error& err)
 	{
 		g_Log->Error( "Path enumeration threw error: %s",  err.what() );
 	}

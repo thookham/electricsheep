@@ -139,7 +139,6 @@ bool	CContentDecoder::Open( sOpenVideoInfo *ovi )
 		return false;
 	
 	boost::filesystem::path sys_name( ovi->m_Path );
-
 	const std::string &_filename = sys_name.string();
 	
 	ovi->m_iCurrentFileFrameCount = 0;

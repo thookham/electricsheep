@@ -1,9 +1,3 @@
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <dirent.h>
-#endif
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -13,21 +7,17 @@
 namespace	Base
 {
 
-using namespace boost::filesystem;
-
 bool GetFileList( std::vector<std::string> &_list, const std::string _dir, const std::string _extension, const bool _usegoldsheep, const bool _usefreesheep )
 {
 	bool gotSheep = false;
 	try {
 	boost::filesystem::path p(_dir);
 
-	directory_iterator end_itr; // default construction yields past-the-end
-	for ( directory_iterator itr( p );
+	for ( boost::filesystem::directory_iterator itr( p ), end_itr;
 			itr != end_itr;
 			++itr )
 	{
-		std::string dirname(itr->path().filename().string());
-		if (is_directory(itr->status()))
+		if (boost::filesystem::is_directory(itr->status()))
 		{
 			gotSheep |= GetFileList( _list, (itr->path().string() + std::string("/")), _extension, _usegoldsheep, _usefreesheep );
 		}
@@ -48,7 +38,7 @@ bool GetFileList( std::vector<std::string> &_list, const std::string _dir, const
 					std::string xxxname(fname);
 					xxxname.replace(fname.size() - 3, 3, "xxx");
 				
-					if ( !exists( p/xxxname ) ) // is it deleted?
+					if ( !boost::filesystem::exists( p/xxxname ) ) // is it deleted?
 					{
 						if ( (_usegoldsheep && generation >= 10000) || (_usefreesheep && generation < 10000) )
 						{

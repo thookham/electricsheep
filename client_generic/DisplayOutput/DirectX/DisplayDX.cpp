@@ -8,6 +8,7 @@
 #include <tchar.h>
 #include <ctype.h>
 #include <regstr.h>
+#define COMPILE_MULTIMON_STUBS
 #include <multimon.h>
 #include <mmsystem.h>
 
@@ -138,7 +139,7 @@ void CDisplayDX::BlankUnusedMonitors(WNDCLASS &wnd, HWND hWnd, HINSTANCE hInstan
 			if( iMonitor != m_DesiredScreenID )
 			{
 				g_Log->Info( "Monitor iMonitor != m_DesiredScreenID %d!=%d x1=%d y1=%d x2=%d y2=%d ", iMonitor, m_DesiredScreenID, rc.left, rc.top, rc.right - rc.left,rc.bottom - rc.top);
-				pMonitorInfo->hWnd = CreateWindowEx( WS_EX_TOPMOST, L"ElectricsheepWndClass", L"ES", dwStyle, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, hWnd, NULL, hInstance, NULL );
+				pMonitorInfo->hWnd = CreateWindowExA( WS_EX_TOPMOST, "ElectricsheepWndClass", "ES", dwStyle, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, hWnd, NULL, hInstance, NULL );
 			}
 
 		}
@@ -467,10 +468,10 @@ HWND CDisplayDX::createwindow( uint32 _w, uint32 _h, const bool _bFullscreen )
 	wndclass.hCursor       = NULL;//LoadCursor (NULL, IDC_ARROW);
 	wndclass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
 	wndclass.lpszMenuName  = NULL;
-	wndclass.lpszClassName = L"ElectricsheepWndClass";
+	wndclass.lpszClassName = "ElectricsheepWndClass";
 
 	static bool wndclassAlreadyRegistered = false;
-	if( wndclassAlreadyRegistered == false && !RegisterClass (&wndclass) )
+	if( wndclassAlreadyRegistered == false && !RegisterClassA (&wndclass) )
 	{
 		return 0;
 	}
@@ -529,7 +530,7 @@ HWND CDisplayDX::createwindow( uint32 _w, uint32 _h, const bool _bFullscreen )
 		}
 	}
 
-	HWND hWnd = CreateWindowEx( exStyle, L"ElectricsheepWndClass", L"Electricsheep", style, xx, yy, ww, hh, NULL, NULL, hInstance, NULL );
+	HWND hWnd = CreateWindowExA( exStyle, "ElectricsheepWndClass", "Electricsheep", style, xx, yy, ww, hh, NULL, NULL, hInstance, NULL );
 	BlankUnusedMonitors(wndclass, hWnd, hInstance);
 	return hWnd;
 }
@@ -558,8 +559,8 @@ bool	CDisplayDX::Initialize( HWND _hWnd, bool _bPreview )
 	wc.hCursor = NULL;
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = L"ElectricsheepWndClass";
-	RegisterClass( &wc );
+	wc.lpszClassName = "ElectricsheepWndClass";
+	RegisterClassA( &wc );
 
 	if( _bPreview )
 	{
@@ -575,7 +576,7 @@ bool	CDisplayDX::Initialize( HWND _hWnd, bool _bPreview )
 
 		DWORD dwStyle = WS_VISIBLE | WS_CHILD;
 		AdjustWindowRect( &rc, dwStyle, FALSE );
-		m_WindowHandle = CreateWindow( L"ElectricsheepWndClass", L"Preview", dwStyle, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, _hWnd, NULL, hInstance, NULL );
+		m_WindowHandle = CreateWindowA( "ElectricsheepWndClass", "Preview", dwStyle, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, _hWnd, NULL, hInstance, NULL );
 		g_Log->Info( "CDisplayDX::Initialize x=%u y=%u w=%u h=%u",  rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 		if( m_WindowHandle == NULL )
 		{

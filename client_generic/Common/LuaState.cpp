@@ -163,11 +163,14 @@ void	CLuaState::Init( const std::string &_basePath )
 
 	lua_gc( m_pState, LUA_GCSTOP, 0 );
 
-	lua_cpcall( m_pState, luaopen_base, NULL );		//	Base library.
-	lua_cpcall( m_pState, luaopen_package, NULL );	//	Package library. (we need this to be able to 'require' from lua)
+	lua_pushcfunction( m_pState, luaopen_base );		//	Base library.
+	lua_pcall( m_pState, 0, 0, 0 );
+	lua_pushcfunction( m_pState, luaopen_package );	//	Package library.
+	lua_pcall( m_pState, 0, 0, 0 );
 
 #ifdef LUA_JIT
-	lua_cpcall( m_pState, luaopen_jit, NULL );
+	lua_pushcfunction( m_pState, luaopen_jit );
+	lua_pcall( m_pState, 0, 0, 0 );
 #endif
 
 #if defined(AMD64) || defined(__LP64__)
@@ -208,7 +211,7 @@ void	CLuaState::Init( const std::string &_basePath )
 */
 static int traceback( lua_State *_pLuaState )
 {
-	lua_getfield( _pLuaState, LUA_GLOBALSINDEX, "debug" );
+	lua_getglobal( _pLuaState, "debug" );
 	if (!lua_istable( _pLuaState, -1 ) )
 	{
 		lua_pop( _pLuaState, 1 );

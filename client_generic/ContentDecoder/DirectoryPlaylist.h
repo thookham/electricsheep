@@ -3,9 +3,7 @@
 
 #include <set>
 #include "playlist.h"
-#include <boost/filesystem/operations.hpp>
-
-using boost::filesystem::directory_iterator;
+#include <boost/filesystem.hpp>
 
 /**
 	CDirectoryPlaylist.
@@ -18,9 +16,9 @@ class	CDirectoryPlaylist : public ContentDecoder::CLoopingPlaylist
 			{
 				std::set<std::string> valid;
 
-				for( directory_iterator i(_directory), end; i != end; ++i )
+				for( boost::filesystem::directory_iterator i(_directory), end; i != end; ++i )
 				{
-					std::string file = i->string();
+					std::string file = i->path().string();
 					size_t pos = file.rfind('.');
 					if( pos != std::string::npos )
 					{

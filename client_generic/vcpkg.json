@@ -1,0 +1,15 @@
+{
+    "name": "electricsheep",
+    "version-string": "2.7b33-svn",
+    "dependencies": [
+        "boost-thread",
+        "boost-filesystem",
+        "boost-system",
+        "boost-interprocess",
+        "wxwidgets",
+        "curl",
+        "tinyxml",
+        "lua",
+        "dxsdk-d3dx"
+    ]
+}

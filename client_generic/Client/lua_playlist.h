@@ -15,15 +15,10 @@
 #include "isaac.h"
 #include "ContentDownloader.h"
 
-#include	"boost/filesystem/path.hpp"
-#include	"boost/filesystem/operations.hpp"
-#include	"boost/filesystem/convenience.hpp"
+#include <boost/filesystem.hpp>
 #include	<boost/thread.hpp>
 
-using boost::filesystem::path;
-using boost::filesystem::exists;
-using boost::filesystem::directory_iterator;
-using boost::filesystem::extension;
+// No using directives for boost::filesystem to avoid conflicts
 
 
 //	Lua.
@@ -53,7 +48,7 @@ class	CLuaPlaylist : public CPlaylist
 	boost::mutex	m_CurrentPlayingLock;
 
 	//	Path to folder to monitor & update interval in seconds.
-	path			m_Path;
+	boost::filesystem::path			m_Path;
 	fp8				m_NormalInterval;
 	fp8				m_EmptyInterval;
 	fp8				m_Clock;
@@ -98,8 +93,8 @@ class	CLuaPlaylist : public CPlaylist
 	{
 		uint16 retval = 0;
 		
-		uint32 generation = static_cast<uint32>(luaL_checkint( _pState, 1 ));
-		uint32 idx = static_cast<uint32>(luaL_checkint( _pState, 2 ));
+		uint32 generation = static_cast<uint32>(luaL_checkinteger( _pState, 1 ));
+		uint32 idx = static_cast<uint32>(luaL_checkinteger( _pState, 2 ));
 				
 		g_PlayCounter().IncPlayCount( generation, idx );
 		
@@ -114,8 +109,8 @@ class	CLuaPlaylist : public CPlaylist
 	{
 		uint16 retval = 0;
 		
-		uint32 generation = static_cast<uint32>(luaL_checkint( _pState, 1 ));
-		uint32 idx = static_cast<uint32>(luaL_checkint( _pState, 2 ));
+		uint32 generation = static_cast<uint32>(luaL_checkinteger( _pState, 1 ));
+		uint32 idx = static_cast<uint32>(luaL_checkinteger( _pState, 2 ));
 		
 		retval = g_PlayCounter().PlayCount( generation, idx );
 		
@@ -196,7 +191,7 @@ class	CLuaPlaylist : public CPlaylist
 		return(1);
 	}
 	//
-	void	DeduceGraphnessFromFilenameAndQueue( path const &/*_basedir*/, const std::string& _filename )
+	void	DeduceGraphnessFromFilenameAndQueue( boost::filesystem::path const &/*_basedir*/, const std::string& _filename )
 	{
 		uint32 Generation, ID, First, Last;
 		std::string sheep;
@@ -207,13 +202,13 @@ class	CLuaPlaylist : public CPlaylist
 			return;
 		}
 
-		path fullPath(_filename );
+		boost::filesystem::path fullPath(_filename );
 		std::string xxxname( _filename );
 		xxxname.replace(_filename.size() - 3, 3, "xxx");
 		
-		if ( exists( xxxname ) )
+		if ( boost::filesystem::exists( xxxname ) )
 		{
-			remove( fullPath );
+			boost::filesystem::remove( fullPath );
 			return;
 		}
 
@@ -253,7 +248,7 @@ class	CLuaPlaylist : public CPlaylist
 	}
 
 	//
-	void	UpdateDirectory( path const &_dir, const bool _bRebuild = false )
+	void	UpdateDirectory( boost::filesystem::path const &_dir, const bool _bRebuild = false )
 	{
 		//boost::mutex::scoped_lock locker( m_Lock );
 

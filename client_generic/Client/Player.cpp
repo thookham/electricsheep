@@ -58,18 +58,13 @@
 #include	"LinearFrameDisplay.h"
 #include	"CubicFrameDisplay.h"
 
-#include	"boost/filesystem/path.hpp"
-#include	"boost/filesystem/operations.hpp"
-#include	"boost/filesystem/convenience.hpp"
+#include <boost/filesystem.hpp>
 
 #if defined(MAC) || defined(WIN32)
 	#define HONOR_VBL_SYNC
 #endif
 
-using boost::filesystem::path;
-using boost::filesystem::exists;
-using boost::filesystem::directory_iterator;
-using boost::filesystem::extension;
+// No using directives for boost::filesystem to avoid conflicts
 
 using namespace DisplayOutput;
 
@@ -341,8 +336,8 @@ bool	CPlayer::Startup()
 	}
 
     //  Tidy up the paths.
-    path    scriptPath = scriptRoot;
-    path    watchPath = watchFolder;
+    boost::filesystem::path    scriptPath = scriptRoot;
+    boost::filesystem::path    watchPath = watchFolder;
 
 	//	Create playlist.
 	g_Log->Info( "Creating playlist..." );

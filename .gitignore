@@ -1,8 +1,13 @@
+# Build Systems
+build/
+client_generic/build/
 client_generic/boost/include/boost
 client_generic/boost/include
 client_generic/MacBuild/build
 client_generic/MacBuild/ElectricSheep.xcodeproj/xcuserdata
 client_generic/MacBuild/ElectricSheep.xcodeproj/project.xcworkspace
+
+# Autotools
 *.Po
 *.Tpo
 *.o
@@ -28,3 +33,42 @@ client_generic/depcomp
 client_generic/install-sh
 client_generic/libtool
 client_generic/ltmain.sh
+
+# CMake and IDEs
+CMakeCache.txt
+CMakeFiles/
+CMakeSettings.json
+cmake_install.cmake
+install/
+CTestTestfile.cmake
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln
+*.vcxproj
+*.filters
+
+# vcpkg
+vcpkg_installed/
+client_generic/vcpkg_installed/
+vcpkg.json.bak
+
+# FFmpeg Manual SDK
+ffmpeg_sdk/
+client_generic/ffmpeg_sdk/
+
+# Logs and Temporaries
+*.log
+*.tmp
+*.bak
+ffmpeg_error.log
+
+# Binaries
+bin/
+lib/
+*.exe
+*.dll
+*.pdb
+*.lib
+*.exp
