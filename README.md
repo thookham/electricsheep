@@ -11,6 +11,7 @@ This fork modernizes the build system and codebase for the modern era.
 - 🛠️ **CMake Build System**: Replaced legacy Visual Studio solutions with a clean, cross-platform CMake system.
 - 📦 **vcpkg Integration**: Hassle-free dependency management for Boost, wxWidgets, CURL, Lua, and TinyXML.
 - 🚀 **C++17 Standards**: Updated the codebase to use modern C++17 features and conventions.
+- 📂 **Legacy Consolidation**: Merged `dankamongmen` standalone client code into `legacy_standalone/`.
 - 🌕 **Lua 5.4**: Upgraded the internal scripting engine from legacy Lua to the latest 5.4 release.
 - 📂 **Boost 1.8x**: Refactored filesystem and threading logic to work with modern Boost APIs.
 - 🖥️ **Win32 Modernization**: Fixed Unicode/ANSI character set mismatches and optimized for 64-bit Windows.
