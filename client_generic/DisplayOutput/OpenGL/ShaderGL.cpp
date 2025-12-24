@@ -1,12 +1,17 @@
+#define GL_GLEXT_LEGACY
+#define GLX_GLXEXT_LEGACY
 #include <iostream>
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
-#ifndef LINUX_GNU
-#include	"./OpenGL/GLee.h"
-#include <OpenGL/CGLMacro.h>
+#ifdef MAC
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+	#include <OpenGL/CGLMacro.h>
 #else
-#include<GLee.h>
+	#include "GLee.h"
+	#include <GL/gl.h>
+	#include <GL/glu.h>
 #endif
 
 #include	"Exception.h"
@@ -38,13 +43,13 @@ CShaderGL::CShaderGL()
 CShaderGL::~CShaderGL()
 {
 	if( m_VertexShader )
-		glDeleteObjectARB( m_VertexShader );
+		glDeleteShader( m_VertexShader );
 
 	if( m_FragmentShader )
-		glDeleteObjectARB( m_FragmentShader );
+		glDeleteShader( m_FragmentShader );
 
 	if( m_Program )
-		glDeleteObjectARB( m_Program );
+		glDeleteProgram( m_Program );
 }
 
 
@@ -52,7 +57,7 @@ CShaderGL::~CShaderGL()
 */
 bool	CShaderGL::Bind()
 {
-	glUseProgramObjectARB( m_Program );
+	glUseProgram( m_Program );
 	VERIFYGL;
 	
 	return true;
@@ -79,7 +84,7 @@ bool	CShaderGL::Apply()
 */
 bool	CShaderGL::Unbind()
 {
-	glUseProgramObjectARB( 0 );
+	glUseProgram( 0 );
 	
 	return true;
 }
@@ -125,23 +130,23 @@ bool	CShaderGL::Build( const char *_pVertexShader, const char *_pFragmentShader 
 
 	m_VertexShader = 0;
 	m_FragmentShader = 0;
-	m_Program = glCreateProgramObjectARB();
+	m_Program = glCreateProgram();
 
 	//	Compile the vertex shader.
 	if( _pVertexShader != NULL )
 	{
-		m_VertexShader = glCreateShaderObjectARB( GL_VERTEX_SHADER_ARB );
+		m_VertexShader = glCreateShader( GL_VERTEX_SHADER_ARB );
 		snprintf(line, 16, "#line %d\n", 0 );
 		shaderStrings[ strIndex ] = _pVertexShader;
-		glShaderSourceARB( m_VertexShader, strIndex + 1, shaderStrings, NULL );
-		glCompileShaderARB( m_VertexShader );
-		glGetObjectParameterivARB( m_VertexShader, GL_OBJECT_COMPILE_STATUS_ARB, &vsResult );
+		glShaderSource( m_VertexShader, strIndex + 1, shaderStrings, NULL );
+		glCompileShader( m_VertexShader );
+		glGetShaderiv( m_VertexShader, GL_COMPILE_STATUS, &vsResult );
 		if( vsResult )
-			glAttachObjectARB( m_Program, m_VertexShader );
+			glAttachShader( m_Program, m_VertexShader );
 		else
 			infoLogPos += sprintf( infoLog + infoLogPos, "Vertex shader error:\n" );
 
-		glGetInfoLogARB( m_VertexShader, sizeof(infoLog) - static_cast<size_t>(infoLogPos), &len, infoLog + infoLogPos );
+		glGetProgramInfoLog( m_VertexShader, sizeof(infoLog) - static_cast<size_t>(infoLogPos), &len, infoLog + infoLogPos );
 		infoLogPos += len;
 
 	}
@@ -151,18 +156,18 @@ bool	CShaderGL::Build( const char *_pVertexShader, const char *_pFragmentShader 
 	//	Compile the fragment shader.
 	if( _pFragmentShader != NULL )
 	{
-		m_FragmentShader = glCreateShaderObjectARB( GL_FRAGMENT_SHADER_ARB );
+		m_FragmentShader = glCreateShader( GL_FRAGMENT_SHADER_ARB );
 		sprintf( line, "#line %d\n", 0 );
 		shaderStrings[ strIndex ] = _pFragmentShader;
-		glShaderSourceARB( m_FragmentShader, strIndex + 1, shaderStrings, NULL );
-		glCompileShaderARB( m_FragmentShader );
-		glGetObjectParameterivARB( m_FragmentShader, GL_OBJECT_COMPILE_STATUS_ARB, &fsResult );
+		glShaderSource( m_FragmentShader, strIndex + 1, shaderStrings, NULL );
+		glCompileShader( m_FragmentShader );
+		glGetShaderiv( m_FragmentShader, GL_COMPILE_STATUS, &fsResult );
 		if( fsResult )
-			glAttachObjectARB( m_Program, m_FragmentShader );
+			glAttachShader( m_Program, m_FragmentShader );
 		else
 			infoLogPos += sprintf( infoLog + infoLogPos, "Fragment shader error:\n" );
 
-		glGetInfoLogARB( m_FragmentShader, sizeof(infoLog) - static_cast<size_t>(infoLogPos), &len, infoLog + infoLogPos );
+		glGetProgramInfoLog( m_FragmentShader, sizeof(infoLog) - static_cast<size_t>(infoLogPos), &len, infoLog + infoLogPos );
 		infoLogPos += len;
 	}
 	else
@@ -171,9 +176,9 @@ bool	CShaderGL::Build( const char *_pVertexShader, const char *_pFragmentShader 
 	//	Link the shaders.
 	if( vsResult && fsResult )
 	{
-		glLinkProgramARB( m_Program );
-		glGetObjectParameterivARB( m_Program, GL_OBJECT_LINK_STATUS_ARB, &linkResult );
-		glGetInfoLogARB( m_Program, sizeof(infoLog) - static_cast<size_t>(infoLogPos), &len, infoLog + infoLogPos );
+		glLinkProgram( m_Program );
+		glGetProgramiv( m_Program, GL_LINK_STATUS, &linkResult );
+		glGetProgramInfoLog( m_Program, sizeof(infoLog) - static_cast<size_t>(infoLogPos), &len, infoLog + infoLogPos );
 		//infoLogPos += len;
 
 		if( len > 0 )
@@ -181,11 +186,11 @@ bool	CShaderGL::Build( const char *_pVertexShader, const char *_pFragmentShader 
 
 		if( linkResult )
 		{
-			glUseProgramObjectARB( m_Program );
+			glUseProgram( m_Program );
 
 			GLint uniformCount, maxLength;
-			glGetObjectParameterivARB( m_Program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &uniformCount );
-			glGetObjectParameterivARB( m_Program, GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB, &maxLength );
+			glGetProgramiv( m_Program, GL_ACTIVE_UNIFORMS, &uniformCount );
+			glGetProgramiv( m_Program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength );
 
 			int nSamplers = 0;
 			//int nUniforms = 0;
@@ -195,12 +200,12 @@ bool	CShaderGL::Build( const char *_pVertexShader, const char *_pFragmentShader 
 			{
 				GLenum type;
 				GLint length, size;
-				glGetActiveUniformARB( m_Program, i, maxLength, &length, &size, &type, name );
+				glGetActiveUniform( m_Program, i, maxLength, &length, &size, &type, name );
 
 				if( type >= GL_SAMPLER_1D && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB )
 				{
 					//	Assign samplers to image units.
-					GLint location = glGetUniformLocationARB( m_Program, name );
+					GLint location = glGetUniformLocation( m_Program, name );
 					
 					int pos;
 					
@@ -250,9 +255,9 @@ bool	CShaderGL::Build( const char *_pVertexShader, const char *_pFragmentShader 
 							}
 						
 #ifdef MAC
-							m_Uniforms[ name ] = new CShaderUniformGL( cgl_ctx, name, eType, glGetUniformLocationARB( m_Program, name ), size );
+							m_Uniforms[ name ] = new CShaderUniformGL( cgl_ctx, name, eType, glGetUniformLocation( m_Program, name ), size );
 #else
-							m_Uniforms[ name ] = new CShaderUniformGL( name, eType, glGetUniformLocationARB( m_Program, name ), size );
+							m_Uniforms[ name ] = new CShaderUniformGL( name, eType, glGetUniformLocation( m_Program, name ), size );
 #endif
 						}
 						else if( bracket != NULL && bracket[1] > '0' )
@@ -311,21 +316,21 @@ bool	CShaderUniformGL::SetData( void *_pData, const uint32 _size )
 	//	Let's take this opportunity to make sure the function pointers are correctly set up.. Ugly, fix!
 	if( !g_bFunclistValid )
 	{
-		g_UniformFunctionList[ eUniform_Float ] = (void *)glUniform1fvARB;
-		g_UniformFunctionList[ eUniform_Float2 ] = (void *)glUniform2fvARB;
-		g_UniformFunctionList[ eUniform_Float3 ] = (void *)glUniform3fvARB;
-		g_UniformFunctionList[ eUniform_Float4 ] = (void *)glUniform4fvARB;
-		g_UniformFunctionList[ eUniform_Int ] = (void *)glUniform1ivARB;
-		g_UniformFunctionList[ eUniform_Int2 ] = (void *)glUniform2ivARB;
-		g_UniformFunctionList[ eUniform_Int3 ] = (void *)glUniform3ivARB;
-		g_UniformFunctionList[ eUniform_Int4 ] = (void *)glUniform4ivARB;
-		g_UniformFunctionList[ eUniform_Boolean ] = (void *)glUniform1ivARB;
-		g_UniformFunctionList[ eUniform_Boolean2 ] = (void *)glUniform2ivARB;
-		g_UniformFunctionList[ eUniform_Boolean3 ] = (void *)glUniform3ivARB;
-		g_UniformFunctionList[ eUniform_Boolean4 ] = (void *)glUniform4ivARB;
-		g_UniformFunctionList[ eUniform_Matrix2 ] = (void *)glUniformMatrix2fvARB;
-		g_UniformFunctionList[ eUniform_Matrix3 ] = (void *)glUniformMatrix3fvARB;
-		g_UniformFunctionList[ eUniform_Matrix4 ] = (void *)glUniformMatrix4fvARB;
+		g_UniformFunctionList[ eUniform_Float ] = (void *)glUniform1fv;
+		g_UniformFunctionList[ eUniform_Float2 ] = (void *)glUniform2fv;
+		g_UniformFunctionList[ eUniform_Float3 ] = (void *)glUniform3fv;
+		g_UniformFunctionList[ eUniform_Float4 ] = (void *)glUniform4fv;
+		g_UniformFunctionList[ eUniform_Int ] = (void *)glUniform1iv;
+		g_UniformFunctionList[ eUniform_Int2 ] = (void *)glUniform2iv;
+		g_UniformFunctionList[ eUniform_Int3 ] = (void *)glUniform3iv;
+		g_UniformFunctionList[ eUniform_Int4 ] = (void *)glUniform4iv;
+		g_UniformFunctionList[ eUniform_Boolean ] = (void *)glUniform1iv;
+		g_UniformFunctionList[ eUniform_Boolean2 ] = (void *)glUniform2iv;
+		g_UniformFunctionList[ eUniform_Boolean3 ] = (void *)glUniform3iv;
+		g_UniformFunctionList[ eUniform_Boolean4 ] = (void *)glUniform4iv;
+		g_UniformFunctionList[ eUniform_Matrix2 ] = (void *)glUniformMatrix2fv;
+		g_UniformFunctionList[ eUniform_Matrix3 ] = (void *)glUniformMatrix3fv;
+		g_UniformFunctionList[ eUniform_Matrix4 ] = (void *)glUniformMatrix4fv;
 		g_bFunclistValid = true;
 	}
 
@@ -382,42 +387,42 @@ void	CShaderUniformGL::Apply()
 	switch (m_eType)
 	{
 		case eUniform_Float:
-			glUniform1fvARB( m_Index, m_Size, (const GLfloat *)m_pData );
+			glUniform1fv( m_Index, m_Size, (const GLfloat *)m_pData );
 			break;
 		case eUniform_Float2:
-			glUniform2fvARB( m_Index, m_Size, (const GLfloat *)m_pData );
+			glUniform2fv( m_Index, m_Size, (const GLfloat *)m_pData );
 			break;
 		case eUniform_Float3:
-			glUniform3fvARB( m_Index, m_Size, (const GLfloat *)m_pData );
+			glUniform3fv( m_Index, m_Size, (const GLfloat *)m_pData );
 			break;
 		case eUniform_Float4:
-			glUniform4fvARB( m_Index, m_Size, (const GLfloat *)m_pData );
+			glUniform4fv( m_Index, m_Size, (const GLfloat *)m_pData );
 			break;
 		case eUniform_Int:
 		case eUniform_Boolean:
 		case eUniform_Sampler:
-			glUniform1ivARB( m_Index, m_Size, (const GLint *)m_pData );
+			glUniform1iv( m_Index, m_Size, (const GLint *)m_pData );
 			break;
 		case eUniform_Int2:
 		case eUniform_Boolean2:
-			glUniform2ivARB( m_Index, m_Size, (const GLint *)m_pData );
+			glUniform2iv( m_Index, m_Size, (const GLint *)m_pData );
 			break;
 		case eUniform_Int3:
 		case eUniform_Boolean3:
-			glUniform3ivARB( m_Index, m_Size, (const GLint *)m_pData );
+			glUniform3iv( m_Index, m_Size, (const GLint *)m_pData );
 			break;
 		case eUniform_Int4:
 		case eUniform_Boolean4:
-			glUniform4ivARB( m_Index, m_Size, (const GLint *)m_pData );
+			glUniform4iv( m_Index, m_Size, (const GLint *)m_pData );
 			break;
 		case eUniform_Matrix2:
-			glUniformMatrix2fvARB( m_Index, m_Size, GL_TRUE, (const GLfloat *)m_pData );
+			glUniformMatrix2fv( m_Index, m_Size, GL_TRUE, (const GLfloat *)m_pData );
 			break;
 		case eUniform_Matrix3:
-			glUniformMatrix3fvARB( m_Index, m_Size, GL_TRUE, (const GLfloat *)m_pData );
+			glUniformMatrix3fv( m_Index, m_Size, GL_TRUE, (const GLfloat *)m_pData );
 			break;
 		case eUniform_Matrix4:
-			glUniformMatrix4fvARB( m_Index, m_Size, GL_TRUE, (const GLfloat *)m_pData );
+			glUniformMatrix4fv( m_Index, m_Size, GL_TRUE, (const GLfloat *)m_pData );
 			break;
         default:
             break;

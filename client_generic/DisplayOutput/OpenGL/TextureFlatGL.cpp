@@ -1,18 +1,16 @@
+#define GL_GLEXT_LEGACY
+#define GLX_GLXEXT_LEGACY
 #include <assert.h>
 #include <inttypes.h>
 #include <string.h>
-#ifndef LINUX_GNU
-#include "GLee.h"
-#else
-#include <GLee.h>
-#endif
+
 #ifdef MAC
-#include <OpenGL/CGLMacro.h>
-//#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
+	#include <OpenGL/CGLMacro.h>
+	#include <GLUT/glut.h>
 #else
-#include <GL/gl.h>
-#include <GL/glut.h>
+	#include "GLee.h"
+	#include <GL/gl.h>
+	#include <GL/glut.h>
 #endif
 
 #include "base.h"
@@ -182,8 +180,8 @@ bool	CTextureFlatGL::Upload( spCImage _spImage )
 	{
 		if( format.isCompressed() )
 		{
-			// does the glCompressedTexImage2DARB need also power-of-two sized texture???
-			glCompressedTexImage2DARB( m_TexTarget, mipMapLevel, internalFormat, _spImage->GetWidth( mipMapLevel ), _spImage->GetHeight( mipMapLevel ), 0, _spImage->getMipMappedSize( mipMapLevel, 1 ), pSrc );
+			// does the glCompressedTexImage2D need also power-of-two sized texture???
+			glCompressedTexImage2D( m_TexTarget, mipMapLevel, internalFormat, _spImage->GetWidth( mipMapLevel ), _spImage->GetHeight( mipMapLevel ), 0, _spImage->getMipMappedSize( mipMapLevel, 1 ), pSrc );
 			
 			if (mipMapLevel == 0)
 				SetRect( Base::Math::CRect( 1, 1 ) );
@@ -289,7 +287,7 @@ bool	CTextureFlatGL::Upload( spCImage _spImage )
 */
 bool	CTextureFlatGL::Bind( const uint32 _index )
 {
-	glActiveTextureARB( GL_TEXTURE0 + _index );
+	glActiveTexture( GL_TEXTURE0 + _index );
 	glEnable( m_TexTarget );
 	glBindTexture( m_TexTarget, m_TexID );
 	
@@ -303,7 +301,7 @@ bool	CTextureFlatGL::Bind( const uint32 _index )
 */
 bool	CTextureFlatGL::Unbind( const uint32 _index )
 {
-	glActiveTextureARB( GL_TEXTURE0 + _index );
+	glActiveTexture( GL_TEXTURE0 + _index );
 	glBindTexture( m_TexTarget, 0 );
 	glDisable( m_TexTarget );
 	VERIFYGL;

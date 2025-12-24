@@ -10,6 +10,9 @@
         "curl",
         "tinyxml",
         "lua",
-        "dxsdk-d3dx"
+        {
+            "name": "dxsdk-d3dx",
+            "platform": "windows"
+        }
     ]
 }

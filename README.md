@@ -43,7 +43,36 @@ mkdir build
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=[PATH_TO_VCPKG]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
 cmake --build . --config Release
+```bash
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=[PATH_TO_VCPKG]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+cmake --build . --config Release
 ```
+
+### Linux / WSL Build
+
+For Debian/Ubuntu-based systems (including WSL/WSL2):
+
+1. **Install Dependencies**:
+   Run the helper script to install build tools and libraries (wxWidgets, FFmpeg, GLee deps, etc.):
+   ```bash
+   cd client_generic
+   sudo ./install_deps_linux.sh
+   ```
+
+2. **Compilation**:
+   ```bash
+   mkdir -p build && cd build
+   cmake ..
+   make -j$(nproc)
+   ```
+
+3. **Run**:
+   Ensure you have an X server running (for WSL), then execute:
+   ```bash
+   ./electricsheep
+   ```
 
 ## 🗺️ Roadmap
 

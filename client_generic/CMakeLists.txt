@@ -13,7 +13,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Force static runtime for compatibility with static vcpkg triplets (x64-windows-static)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 # --- Dependency Management ---
 
@@ -28,6 +30,17 @@ find_package(CURL REQUIRED)
 
 # Threads: Standard threading support
 find_package(Threads REQUIRED)
+
+
+# OpenGL: Required for Linux rendering
+if(UNIX AND NOT APPLE)
+    find_package(OpenGL REQUIRED)
+    find_package(X11 REQUIRED)
+    if(NOT X11_Xrender_FOUND)
+         find_library(X11_Xrender_LIB Xrender)
+    endif()
+    link_libraries(${X11_LIBRARIES} ${X11_Xrender_LIB})
+endif()
 
 # DirectX: Required for Windows rendering
 if(WIN32)
@@ -51,14 +64,55 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg_sdk")
     )
 else()
     # Attempt to find via standard path or vcpkg
-    find_package(FFmpeg COMPONENTS avcodec avformat swscale avutil swresample)
+    if(WIN32)
+        find_package(FFmpeg COMPONENTS avcodec avformat swscale avutil swresample)
+    elseif(UNIX)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(FFMPEG REQUIRED libavcodec libavformat libavutil libswscale libswresample)
+        # pkg-config returns FFMPEG_LIBRARIES and FFMPEG_INCLUDE_DIRS which works with the existing include_directories calls
+        # We might need to handle individual targets if the link step is granular, but the existing code uses ${FFMPEG_LIBRARIES}
+    endif()
 endif()
 
 # Lua: Scripting engine (vcpkg provides Lua 5.4)
 find_package(Lua REQUIRED)
 
+# ZLIB: Required for decompression
+find_package(ZLIB REQUIRED)
+include_directories(${ZLIB_INCLUDE_DIRS})
+link_libraries(${ZLIB_LIBRARIES})
+
+# PNG: Required for LoadPNG
+find_package(PNG REQUIRED)
+include_directories(${PNG_INCLUDE_DIRS})
+link_libraries(${PNG_LIBRARIES})
+
+# GLUT: Required for glutInit
+find_package(GLUT REQUIRED)
+include_directories(${GLUT_INCLUDE_DIR})
+link_libraries(${GLUT_LIBRARIES})
+
+# GTop: Required for Linux CPU usage
+if(UNIX AND NOT APPLE)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(LIBGTOP REQUIRED libgtop-2.0)
+    include_directories(${LIBGTOP_INCLUDE_DIRS})
+    link_directories(${LIBGTOP_LIBRARY_DIRS})
+    link_libraries(${LIBGTOP_LIBRARIES})
+endif()
+
 # TinyXML: XML parsing
-find_package(tinyxml CONFIG REQUIRED)
+if(WIN32)
+    find_package(tinyxml CONFIG REQUIRED)
+elseif(UNIX)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(TINYXML REQUIRED tinyxml)
+    
+    # Create an alias library to match the vcpkg target name
+    add_library(unofficial-tinyxml::unofficial-tinyxml INTERFACE IMPORTED)
+    target_link_libraries(unofficial-tinyxml::unofficial-tinyxml INTERFACE ${TINYXML_LIBRARIES})
+    target_include_directories(unofficial-tinyxml::unofficial-tinyxml INTERFACE ${TINYXML_INCLUDE_DIRS})
+endif()
 
 # --- Source File Definitions ---
 
@@ -94,6 +148,15 @@ if(WIN32)
         DisplayOutput/DirectX/RendererDX.cpp
         DisplayOutput/DirectX/ShaderDX.cpp
         DisplayOutput/DirectX/TextureFlatDX.cpp
+    )
+elseif(UNIX AND NOT APPLE)
+    list(APPEND DISPLAY_SRCS
+        DisplayOutput/OpenGL/glx.cpp
+        DisplayOutput/OpenGL/RendererGL.cpp
+        DisplayOutput/OpenGL/FontGL.cpp
+        DisplayOutput/OpenGL/TextureFlatGL.cpp
+        DisplayOutput/OpenGL/ShaderGL.cpp
+        DisplayOutput/OpenGL/GLee.c
     )
 endif()
 
@@ -166,6 +229,8 @@ if(WIN32)
     target_include_directories(electricsheep PRIVATE DisplayOutput/DirectX)
     # Compatibility path for vcpkg's dxsdk-d3dx header structure
     target_include_directories(electricsheep PRIVATE ${CMAKE_BINARY_DIR}/vcpkg_installed/x64-windows-static/include/dxsdk-d3dx)
+elseif(UNIX AND NOT APPLE)
+    target_include_directories(electricsheep PRIVATE DisplayOutput/OpenGL)
 endif()
 
 # --- Link Libraries ---
@@ -190,6 +255,13 @@ if(WIN32)
         ws2_32 wldap32 shlwapi psapi d3d9 d3d11 dxgi
         Microsoft::D3DX9
     )
+elseif(UNIX AND NOT APPLE)
+     target_compile_definitions(electricsheep PRIVATE LINUX LINUX_GNU TIXML_USE_STL SHAREDIR="/usr/share/electricsheep" GL_GLEXT_LEGACY GLX_GLXEXT_LEGACY)
+     target_link_libraries(electricsheep PRIVATE
+        OpenGL::GL
+        X11::X11
+        ${CMAKE_DL_LIBS}
+     )
 endif()
 
 # --- Post-Build Steps (Optional) ---

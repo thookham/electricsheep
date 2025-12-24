@@ -9,6 +9,7 @@
 
 #ifdef LINUX_GNU
 #include <inttypes.h>
+#include <cstdint>
 #endif
 
 //	Standard signed types.
