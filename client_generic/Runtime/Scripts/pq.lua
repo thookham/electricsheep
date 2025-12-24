@@ -7,9 +7,9 @@
 --  is a heap-ordered binary tree. The basic operation
 --  is the merge operation which merges two heaps into one.
 --
-require "class"
+local class = require "class"
 
-module( ..., package.seeall )
+local _M = {}
 
 local pq_mt = class.create( _M )
 
@@ -63,3 +63,4 @@ function _M:remove()
     r.left, r.right = nil, nil
     return r
 end
+return _M

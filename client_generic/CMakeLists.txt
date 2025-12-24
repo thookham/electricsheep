@@ -256,7 +256,10 @@ if(WIN32)
         Microsoft::D3DX9
     )
 elseif(UNIX AND NOT APPLE)
-     target_compile_definitions(electricsheep PRIVATE LINUX LINUX_GNU TIXML_USE_STL SHAREDIR="/usr/share/electricsheep" GL_GLEXT_LEGACY GLX_GLXEXT_LEGACY)
+     if(NOT DEFINED SHAREDIR)
+        set(SHAREDIR "/usr/share/electricsheep/")
+     endif()
+     target_compile_definitions(electricsheep PRIVATE LINUX LINUX_GNU TIXML_USE_STL SHAREDIR="${SHAREDIR}" GL_GLEXT_LEGACY GLX_GLXEXT_LEGACY)
      target_link_libraries(electricsheep PRIVATE
         OpenGL::GL
         X11::X11

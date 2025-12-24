@@ -1,7 +1,7 @@
-module( ..., package.seeall )
+local _M = {}
 
 --
-function create( _members )
+function _M.create( _members )
 
 		members = _members or {}
 
@@ -15,7 +15,7 @@ function create( _members )
 		end
 
 		local function copy( _obj, ... )
-			local newobj = _obj:new( unpack( arg ) )
+			local newobj = _obj:new( ... )
 
 			for n,v in pairs( _obj ) do
 				newobj[n] = v
@@ -29,3 +29,5 @@ function create( _members )
 
 		return mt
 end
+
+return _M

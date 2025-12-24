@@ -1,11 +1,11 @@
 require "table"
 require "os"
 require "io"
-require "pq"
+local pq = require "pq"
 require "math"
 --require "serialize"
 --require "luaXML"
-require "histogram"
+local histogram = require "histogram"
 require "os"
 
 local dump = g_Log

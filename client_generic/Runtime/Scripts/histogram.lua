@@ -1,7 +1,5 @@
-require "class"
-
-module( ..., package.seeall )
-
+local class = require "class"
+local _M = {}
 local _mt = class.create( _M )
 
 --	Return new instance.
@@ -35,3 +33,4 @@ function _M:contains( _v )
 	end
 	return false
 end
+return _M
