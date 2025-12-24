@@ -13,7 +13,8 @@ This fork modernizes the build system and codebase for the modern era.
 - 🚀 **C++17 Standards**: Updated the codebase to use modern C++17 features and conventions.
 - 📂 **Legacy Consolidation**: Merged `dankamongmen` standalone client code into `legacy_standalone/`.
 - 🌕 **Lua 5.4**: Upgraded the internal scripting engine from legacy Lua to the latest 5.4 release.
-- 📂 **Boost 1.8x**: Refactored filesystem and threading logic to work with modern Boost APIs.
+- � **Linux Support**: Native builds for Linux and WSL with automated dependency installation.
+- �📂 **Boost 1.8x**: Refactored filesystem and threading logic to work with modern Boost APIs.
 - 🖥️ **Win32 Modernization**: Fixed Unicode/ANSI character set mismatches and optimized for 64-bit Windows.
 
 ## 🛠️ Build Instructions
@@ -43,14 +44,9 @@ mkdir build
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=[PATH_TO_VCPKG]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
 cmake --build . --config Release
-```bash
-mkdir build
-cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=[PATH_TO_VCPKG]/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
-cmake --build . --config Release
 ```
 
-### Linux / WSL Build
+### 🐧 Linux / WSL Build
 
 For Debian/Ubuntu-based systems (including WSL/WSL2):
 
@@ -78,7 +74,7 @@ For Debian/Ubuntu-based systems (including WSL/WSL2):
 
 - [ ] **GPU Acceleration**: Implement Vulkan/D3D11 rendering paths for sheep animations.
 - [ ] **Modern UI**: Update the wxWidgets interface with a more contemporary aesthetic.
-- [ ] **Cross-Platform**: Full support for macOS and Linux using the new CMake system.
+- [x] **Cross-Platform**: Full support for macOS and Linux using the new CMake system.
 - [ ] **CI/CD**: Automate builds and releases using GitHub Actions.
 
 ## 📜 License
